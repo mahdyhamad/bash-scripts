@@ -3,11 +3,6 @@
 
 # The script should have three main functionalities:
 
-# echo $#
-# echo $0
-# echo $1
-# echo $2
-
 if [ $# -eq 0 ]
 then
     echo "Usage: $0 <directory>"
@@ -22,13 +17,33 @@ then
         if [ $2 = 'ana' ]
         then
             # "ana" which means analytics, then followed by the regex that you are going to count.
-            echo ""
+            if [[ -f $1 ]]; then
+                WORLD_COUNT=$(egrep $3 $FILE -o -s| wc -l)
+                echo "The number of $3 in $FILE is $WORLD_COUNT"
+            elif [[ -d $1 ]]; then
+                for FILE in *;
+                do  
+                    if [[ -f $FILE ]]; then
+                        WORLD_COUNT=$(egrep $3 $FILE -o -s | sort | uniq | wc -l)
+                        echo "The number of $3 in $FILE is $WORLD_COUNT"
+                    fi
+                done
+            fi
         elif [ $2 = 'del' ]
         then
             # "del" which means delete, followed by the biggest file size. Files larger than that should be deleted.
             for FILE in *; 
             do
-             echo $FILE; done
+                # TODO: add interactive delete if interactive mode is on.
+                if [[ -f $FILE ]]; then
+                    FILE_SIZE=$(wc -c $FILE | awk '{print $1}')
+                    if [ FILE_SIZE -gt $3 ]
+                    then
+                        echo "Deleting $FILE"
+                        rm $FILE
+                    fi
+                fi
+            done
         elif [ $2 = 'arr' ]
         then
             # "arr" which means arrange, followd by the file type you are going to arrange in one new directory.
